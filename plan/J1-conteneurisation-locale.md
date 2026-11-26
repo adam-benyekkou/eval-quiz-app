@@ -3,7 +3,7 @@
 **Branche(s)** : feature/j1-analyse, feature/j1-backend-image, feature/j1-frontend-image, feature/j1-compose (une PR par branche, dans cet ordre)
 **Dépend de** : — ; doit être validé avant J3
 **Assigné** : Ulrich & Adam
-**Statut** : à valider (4 sections faites, preuves déposées, PR à ouvrir)
+**Statut** : en cours (sections 1-3 faites)
 **Livrables** : `backend/Dockerfile`, `Dockerfile` (frontend), `docker-compose.yml`, `.dockerignore`, `backend/.dockerignore`, `.env.example` à jour, `docs/architecture-locale.md` + schéma, `preuves/J1/`
 
 ## Section 1 — feature/j1-analyse (docs/08 §8)

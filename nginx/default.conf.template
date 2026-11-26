@@ -1,10 +1,17 @@
+# Configuration rendue par envsubst au démarrage du conteneur
+# (/etc/nginx/templates/*.template -> /etc/nginx/conf.d/*.conf).
+# BACKEND_HOST et BACKEND_PORT sont fournis par l'environnement (Compose, Azure en J4).
+# Le nom de l'upstream est résolu au démarrage : le backend doit être joignable en DNS
+# à ce moment-là, sinon Nginx refuse de démarrer.
+
 upstream backend {
     least_conn;
-    server backend:3007;
+    server ${BACKEND_HOST}:${BACKEND_PORT};
 }
 
 server {
-    listen 80;
+    # Port non privilégié : l'image tourne en utilisateur non-root
+    listen 8080;
     server_name localhost;
 
     root /usr/share/nginx/html;

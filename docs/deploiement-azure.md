@@ -99,7 +99,13 @@ az acr repository show-tags -n acrquizevaladam --repository quiz-frontend -o tab
 
 Le mode local est le défaut car il laisse les images sur la machine pour les
 tests de J1/J4. `--acr-build` est le repli sans Docker local (poste verrouillé,
-CI) ; il a été exécuté une fois pour vérifier l'équivalence (voir preuve).
+CI). Il a été testé : **il est refusé sur cet abonnement Azure for Students**
+par la politique de l'abonnement, avec l'erreur
+`TasksOperationsNotAllowed` (les ACR Tasks ne sont pas autorisés). Le chemin
+validé ici reste donc le build local suivi de `docker push`. L'option demeure
+dans le script pour un abonnement où les ACR Tasks sont ouverts ; elle n'est
+pas présentée comme validée sur ce compte. Voir
+`preuves/J3/04-acr-build-refus.md`.
 
 ## Opérations sensibles
 
@@ -143,7 +149,9 @@ conservation des preuves.
 | `non connecté à Azure` | session `az` expirée | `az login` |
 | `Login Succeeded` absent / 401 au push | `az acr login` a échoué | relancer `az acr login -n acrquizevaladam`, vérifier `az account show` |
 | nom d'ACR déjà pris | les noms ACR sont uniques mondialement | changer `ACR_NAME` ou supprimer l'ancien registre |
-| `az acr build` refuse | provider `Microsoft.ContainerRegistry` non enregistré | `az provider register --namespace Microsoft.ContainerRegistry` |
+| `az acr build` refuse (`TasksOperationsNotAllowed`) | ACR Tasks bloqués par l'abonnement (cas Azure for Students) | utiliser le mode local + `docker push` |
+| `az acr build` refuse autrement | provider `Microsoft.ContainerRegistry` non enregistré | `az provider register --namespace Microsoft.ContainerRegistry` |
+| `Temporary failure in name resolution` au push | DNS transient côté démon Docker/hôte | vérifier `getent hosts $ACR_NAME.azurecr.io`, relancer `deploy.sh` |
 | build local très long | cache Docker vide | laisser le premier build se terminer, les suivants sont cachés |
 
 ## Références

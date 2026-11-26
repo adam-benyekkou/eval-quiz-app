@@ -3,7 +3,7 @@
 **Branche(s)** : feature/j1-analyse, feature/j1-backend-image, feature/j1-frontend-image, feature/j1-compose (une PR par branche, dans cet ordre)
 **Dépend de** : — ; doit être validé avant J3
 **Assigné** : IA:Warrior (assisté)
-**Statut** : en cours (sections 1-3 faites)
+**Statut** : à valider (4 sections faites, preuves déposées, PR à ouvrir)
 **Livrables** : `backend/Dockerfile`, `Dockerfile` (frontend), `docker-compose.yml`, `.dockerignore`, `backend/.dockerignore`, `.env.example` à jour, `docs/architecture-locale.md` + schéma, `preuves/J1/`
 
 ## Section 1 — feature/j1-analyse (docs/08 §8)
@@ -40,24 +40,24 @@
 
 ## Section 4 — feature/j1-compose
 
-- [ ] Services `db` (postgres:16-alpine), `backend`, `frontend`
-- [ ] db : variables POSTGRES_* depuis `.env`, volume nommé `pgdata:/var/lib/postgresql/data`, healthcheck `pg_isready`
-- [ ] Init du schéma via montage `./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro` (exécuté seulement à la première initialisation du volume ; à expliquer à l'oral)
-- [ ] backend : `DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}`, `depends_on` db condition `service_healthy`, secrets via `.env`
-- [ ] frontend : `depends_on` backend ; un seul port hôte (ex. `8087:8080`) ; db et backend non publiés
-- [ ] `.env.example` complet (valeurs fictives, RESEND_API_KEY vide ou factice)
-- [ ] Vérifier que `.env` est ignoré : `git check-ignore -v .env`
-- [ ] `docker compose up -d --build` : services healthy/running
-- [ ] Parcours : inscription, quiz complet, résultat enregistré (`docker compose exec db psql -U $POSTGRES_USER -d $POSTGRES_DB -c "select count(*) from quiz_results;"`)
-- [ ] Admin `/gestion-quiz` : login + liste
-- [ ] Persistance : `docker compose down` (sans -v) puis `up` puis même count
-- [ ] Si Resend non configuré : vérifier que l'enregistrement réussit quand même, ou documenter le comportement exact
+- [x] Services `db` (postgres:16-alpine), `backend`, `frontend`
+- [x] db : variables POSTGRES_* depuis `.env`, volume nommé `pgdata:/var/lib/postgresql/data`, healthcheck `pg_isready`
+- [x] Init du schéma via montage `./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro` (exécuté seulement à la première initialisation du volume ; à expliquer à l'oral)
+- [x] backend : `DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}`, `depends_on` db condition `service_healthy`, secrets via `.env`
+- [x] frontend : `depends_on` backend ; un seul port hôte (ex. `8087:8080`) ; db et backend non publiés
+- [x] `.env.example` complet (valeurs fictives, RESEND_API_KEY vide ou factice)
+- [x] Vérifier que `.env` est ignoré : `git check-ignore -v .env`
+- [x] `docker compose up -d --build` : services healthy/running
+- [x] Parcours : inscription, quiz complet, résultat enregistré (`docker compose exec db psql -U $POSTGRES_USER -d $POSTGRES_DB -c "select count(*) from quiz_results;"`)
+- [x] Admin `/gestion-quiz` : login + liste
+- [x] Persistance : `docker compose down` (sans -v) puis `up` puis même count
+- [x] Si Resend non configuré : vérifier que l'enregistrement réussit quand même, ou documenter le comportement exact
 
 ## Preuve
 
-- [ ] `preuves/J1/` : commandes, logs expurgés, captures
-- [ ] Test de persistance avant/après `docker compose down`
-- [ ] Explication du volume
+- [x] `preuves/J1/` : commandes, logs expurgés, captures
+- [x] Test de persistance avant/après `docker compose down`
+- [x] Explication du volume
 
 ## Je sais expliquer (humain)
 

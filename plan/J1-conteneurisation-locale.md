@@ -3,7 +3,7 @@
 **Branche(s)** : feature/j1-analyse, feature/j1-backend-image, feature/j1-frontend-image, feature/j1-compose (une PR par branche, dans cet ordre)
 **Dépend de** : — ; doit être validé avant J3
 **Assigné** : Ulrich & Adam
-**Statut** : en cours (sections 1-2 faites)
+**Statut** : en cours (sections 1-3 faites)
 **Livrables** : `backend/Dockerfile`, `Dockerfile` (frontend), `docker-compose.yml`, `.dockerignore`, `backend/.dockerignore`, `.env.example` à jour, `docs/architecture-locale.md` + schéma, `preuves/J1/`
 
 ## Section 1 — feature/j1-analyse (docs/08 §8)
@@ -30,13 +30,13 @@
 
 ## Section 3 — feature/j1-frontend-image (Dockerfile racine)
 
-- [ ] Étape 1 : `node:20-alpine`, `npm ci`, `npm run build` (dist/, deux pages d'entrée d'après vite.config.js)
-- [ ] Étape 2 : nginx, `nginxinc/nginx-unprivileged:alpine` (non-root, port 8080, shell conservé pour le débogage), copier dist/ dans `/usr/share/nginx/html`
-- [ ] Paramétrer le backend dans la config nginx (modèle `*.template` + envsubst, variables `BACKEND_HOST` et `BACKEND_PORT` ; Compose : backend/3007 ; Azure en J4 : valeurs différentes)
-- [ ] Conserver les routes `/api/`, `/health`, `/gestion-quiz`
-- [ ] `.dockerignore` racine (node_modules, dist, .git, .env*, plan, docs, preuves)
-- [ ] Build local ; `/` et `/gestion-quiz` répondent 200
-- [ ] Hadolint propre
+- [x] Étape 1 : `node:20-alpine`, `npm ci`, `npm run build` (dist/, deux pages d'entrée d'après vite.config.js)
+- [x] Étape 2 : nginx, `nginxinc/nginx-unprivileged:alpine` (non-root, port 8080, shell conservé pour le débogage), copier dist/ dans `/usr/share/nginx/html`
+- [x] Paramétrer le backend dans la config nginx (modèle `*.template` + envsubst, variables `BACKEND_HOST` et `BACKEND_PORT` ; Compose : backend/3007 ; Azure en J4 : valeurs différentes)
+- [x] Conserver les routes `/api/`, `/health`, `/gestion-quiz`
+- [x] `.dockerignore` racine (node_modules, dist, .git, .env*, plan, docs, preuves)
+- [x] Build local ; `/` et `/gestion-quiz` répondent 200
+- [x] Hadolint propre
 
 ## Section 4 — feature/j1-compose
 

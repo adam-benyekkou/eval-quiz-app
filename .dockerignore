@@ -1,0 +1,23 @@
+# Contexte de build du frontend : uniquement ce que Vite compile
+node_modules
+dist
+.git
+.gitignore
+.gitmessage.txt
+.github
+.githooks
+.vscode
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Hors périmètre du build frontend
+plan
+docs
+preuves
+backend
+database
+images
+*.md

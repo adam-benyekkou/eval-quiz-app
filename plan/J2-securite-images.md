@@ -18,6 +18,8 @@
 ## Section 2 — feature/j2-hardening
 
 - [ ] Corrections candidates justifiées : image de base plus récente ou `-alpine`/`-slim`, MAJ des dépendances npm sans changer le comportement, `npm ci --omit=dev`, retirer les outils de build de l'image finale, non-root, FS en lecture seule si possible
+- [ ] Comparer `alpine` vs image hardened/distroless (`gcr.io/distroless/nodejs20-debian12`, `cgr.dev/chainguard/node`, `cgr.dev/chainguard/nginx`) sur le nombre de CVE et la taille ; si le gain est net, basculer en J1 (feature/j1-backend-image ou feature/j1-frontend-image) et documenter pourquoi ici
+- [ ] Si distroless retenu : vérifier qu'aucun diagnostic du groupe (shell, `curl` de debug) n'en dépend ; prévoir `docker debug`/un conteneur de debug éphémère pour le troubleshooting au lieu de `docker exec sh`
 - [ ] Ne pas modifier la logique métier ; une dépendance imposant un changement de code = résiduelle documentée
 - [ ] Reconstruire (`:fixed`) et rescanner : `preuves/J2/trivy-apres-*.txt`
 - [ ] Section « Vulnérabilités résiduelles » (CVE, sévérité, raison, mitigation) dans `docs/securite-trivy.md`
@@ -34,6 +36,6 @@
 ## Je sais expliquer (humain)
 
 - [ ] Ce que Trivy analyse et d'où vient sa base CVE
-- [ ] Pourquoi alpine/slim réduit les CVE
+- [ ] Pourquoi alpine/slim réduit les CVE, et ce qu'apporte en plus une image distroless/hardened (pas de shell, pas de gestionnaire de paquets)
 - [ ] Pourquoi une résiduelle n'est pas acceptée aveuglément
 - [ ] Différence entre scan fs, image et config

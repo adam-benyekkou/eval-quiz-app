@@ -15,13 +15,15 @@
 - [ ] Comprendre `database/nginx/nginx.conf` (doublon de `nginx/nginx.conf` ?) et décider lequel est utilisé
 - [ ] Vérifier hors Docker que le backend démarre sans RESEND_API_KEY et sans PostgreSQL : `cd backend && npm ci && PORT=3007 node server.js` puis `curl -i localhost:3007/health` ; noter le résultat (conditionne J4)
 - [ ] Rédiger `docs/architecture-locale.md` avec un schéma réalisé par le groupe (Mermaid ou image)
-- [ ] Rédiger la justification des images de base et du volume nommé
+- [ ] Rédiger la justification des images de base et du volume nommé, en incluant le choix entre alpine classique et une image hardened/distroless (Chainguard, distroless) pour le backend et le frontend
 
 ## Section 2 — feature/j1-backend-image
 
-- [ ] Image `node:20-alpine` (Node ≥ 20), tag précis, pas `latest`
+- [ ] Image de build `node:20-alpine` (Node ≥ 20), tag précis, pas `latest`
+- [ ] Évaluer une image finale plus légère/hardened que `node:20-alpine` pour le runtime : `gcr.io/distroless/nodejs20-debian12` ou `cgr.dev/chainguard/node` (pas de shell, pas de gestionnaire de paquets, surface d'attaque réduite) ; comparer taille et nombre de CVE avec `node:20-alpine` avant de choisir (lien direct avec J2)
+- [ ] Si distroless/Chainguard retenu : build multi-étapes obligatoire (étape `node:20-alpine` pour `npm ci`, étape finale distroless qui ne contient que `node_modules` + code), car ces images n'ont pas de shell pour lancer `npm`
 - [ ] `COPY package*.json` puis `npm ci --omit=dev` puis COPY du code
-- [ ] `USER node`, `EXPOSE 3007`, `CMD ["node","server.js"]`
+- [ ] `USER node` (ou utilisateur non-root déjà imposé par l'image distroless/Chainguard), `EXPOSE 3007`, `CMD ["node","server.js"]` (forme exec, pas de shell en distroless)
 - [ ] `backend/.dockerignore` (node_modules, .env*, .git)
 - [ ] Vérifier la présence de `package-lock.json` dans `backend/` (si absent, `npm ci` échoue : utiliser `npm install --omit=dev` et le justifier, ou générer le lock dans une PR dédiée)
 - [ ] `docker build -t quiz-backend:local backend && docker run --rm -p 3007:3007 quiz-backend:local`
@@ -31,7 +33,7 @@
 ## Section 3 — feature/j1-frontend-image (Dockerfile racine)
 
 - [ ] Étape 1 : `node:20-alpine`, `npm ci`, `npm run build` (dist/, deux pages d'entrée d'après vite.config.js)
-- [ ] Étape 2 : nginx, préférer `nginxinc/nginx-unprivileged:alpine` (non-root, port 8080), copier dist/ dans `/usr/share/nginx/html`
+- [ ] Étape 2 : nginx, préférer `nginxinc/nginx-unprivileged:alpine` (non-root, port 8080), copier dist/ dans `/usr/share/nginx/html` ; alternative hardened à évaluer : `cgr.dev/chainguard/nginx` (non-root par défaut, minimal) — comparer taille/CVE avant de choisir
 - [ ] Paramétrer le backend dans la config nginx (modèle `*.template` + envsubst, variables `BACKEND_HOST` et `BACKEND_PORT` ; Compose : backend/3007 ; Azure en J4 : valeurs différentes)
 - [ ] Conserver les routes `/api/`, `/health`, `/gestion-quiz`
 - [ ] `.dockerignore` racine (node_modules, dist, .git, .env*, plan, docs, preuves)

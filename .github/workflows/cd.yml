@@ -1,0 +1,111 @@
+name: CD Azure
+
+# J6-B : après fusion dans main uniquement (jamais sur pull_request : aucun
+# secret ni droit Azure n'est exposé aux PR). Publie des images taguées avec le
+# SHA du commit puis met à jour les Container Apps (nouvelle révision).
+# Authentification OIDC (identité managée + identifiant fédéré limité à
+# refs/heads/main, voir scripts/setup-oidc.sh) : aucun mot de passe stocké.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: false
+
+env:
+  ACR_NAME: acrquizevaladam
+  RG: rg-quiz-eval
+  BACKEND_APP: backend
+  FRONTEND_APP: frontend
+  AZURE_EXTENSION_USE_DYNAMIC_INSTALL: yes_without_prompt
+  AZURE_CORE_ONLY_SHOW_ERRORS: "true"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute image tag
+        run: echo "TAG=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: az acr login --name "$ACR_NAME"
+
+      # Même politique que la CI : le scan précède le push, un CRITICAL bloque.
+      - name: Build backend
+        run: docker build --tag "$ACR_NAME.azurecr.io/quiz-backend:$TAG" backend
+
+      - name: Trivy backend (CRITICAL bloquant)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.ACR_NAME }}.azurecr.io/quiz-backend:${{ env.TAG }}
+          scanners: vuln
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: false
+          exit-code: 1
+
+      - name: Build frontend
+        run: docker build --tag "$ACR_NAME.azurecr.io/quiz-frontend:$TAG" .
+
+      - name: Trivy frontend (CRITICAL bloquant)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.ACR_NAME }}.azurecr.io/quiz-frontend:${{ env.TAG }}
+          scanners: vuln
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: false
+          exit-code: 1
+
+      - name: Push images
+        run: |
+          docker push "$ACR_NAME.azurecr.io/quiz-backend:$TAG"
+          docker push "$ACR_NAME.azurecr.io/quiz-frontend:$TAG"
+          echo "### Images publiées" >> "$GITHUB_STEP_SUMMARY"
+          for repo in quiz-backend quiz-frontend; do
+            digest="$(az acr repository show --name "$ACR_NAME" --image "$repo:$TAG" --query digest --output tsv)"
+            echo "- \`$repo:$TAG\` — \`$digest\`" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      # Backend d'abord : le frontend résout son FQDN au démarrage.
+      - name: Update backend
+        run: |
+          az containerapp update --name "$BACKEND_APP" --resource-group "$RG" \
+            --image "$ACR_NAME.azurecr.io/quiz-backend:$TAG" --output none
+
+      - name: Update frontend
+        run: |
+          az containerapp update --name "$FRONTEND_APP" --resource-group "$RG" \
+            --image "$ACR_NAME.azurecr.io/quiz-frontend:$TAG" --output none
+
+      # /health ne touche pas PostgreSQL : il prouve le démarrage, pas la base.
+      - name: Check revisions and /health
+        run: |
+          for app in "$BACKEND_APP" "$FRONTEND_APP"; do
+            az containerapp revision list --name "$app" --resource-group "$RG" --output table
+          done
+          fqdn="$(az containerapp show --name "$FRONTEND_APP" --resource-group "$RG" --query properties.configuration.ingress.fqdn --output tsv)"
+          for i in 1 2 3 4 5 6; do
+            code="$(curl -s -o /tmp/health.json -w '%{http_code}' --max-time 20 "https://$fqdn/health" || true)"
+            echo "tentative $i : HTTP $code $(cat /tmp/health.json 2>/dev/null)"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "/health n'a pas répondu 200" >&2
+          exit 1

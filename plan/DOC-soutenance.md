@@ -9,6 +9,7 @@
 ## Section 1 — README et usage de l'IA
 
 - [ ] Section README « Usage de l'IA » (docs/09) : outils, types de tâches assistées, comment chaque proposition a été vérifiée ; aucune clé, chaîne ni donnée personnelle
+- [ ] Préciser l'architecture utilisée : un orchestrateur/planificateur (Sonnet) qui découpe les tâches et un worker (DeepSeek) qui exécute ; chaque sortie du worker est relue par l'humain et corrigée manuellement avant commit
 - [ ] README : prérequis, lancement local, déploiement cloud, nettoyage, liens vers `docs/` et `preuves/`
 - [ ] `.env.example` sans secret, et `git ls-files | grep -E '(^|/)\.env$'` ne renvoie rien
 

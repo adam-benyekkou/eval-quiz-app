@@ -1,0 +1,4 @@
+# J6 — protection de main (relevé API, 2026-11-26)
+
+$ gh api repos/adam-benyekkou/eval-quiz-app/branches/main/protection
+{"appliquee_aux_admins":false,"approbations_requises":1,"checks_requis":["build-quiz-backend","build-quiz-frontend","trivy-image-quiz-backend","trivy-image-quiz-frontend","trivy","hadolint"],"force_push_autorise":false,"suppression_autorisee":false}

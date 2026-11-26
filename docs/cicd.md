@@ -43,8 +43,15 @@ Security ; il n'est pas exigé.)
 
 Dépôt public : la protection de branche est disponible sur le plan gratuit.
 Règle sur `main` : pull request obligatoire avec une approbation, checks requis
-ci-dessus, force-push et suppression interdits. Voir `preuves/J6/` pour l'état
-relevé via l'API.
+ci-dessus, force-push et suppression interdits. Relevé via l'API :
+`preuves/J6/03-protection-main.txt`.
+
+**Limite assumée** : `enforce_admins` est désactivé, donc un administrateur du
+dépôt peut contourner la règle (fusion sans approbation, push direct). La règle
+bloque les autres contributeurs et toute PR dont un check est rouge, pas le
+propriétaire. L'activer imposerait un second compte approbateur pour chaque
+fusion. Les tests négatifs de push direct et de PR rouge restent à réaliser
+avec un compte non administrateur.
 
 ## CD après fusion (J6-B)
 
@@ -57,7 +64,9 @@ J0 a montré que la création de service principal est refusée
 (`Insufficient privileges`). `scripts/setup-oidc.sh` utilise à la place une
 **identité managée user-assigned** avec un **identifiant fédéré** GitHub :
 
-- sujet exact : `repo:adam-benyekkou/eval-quiz-app:ref:refs/heads/main` ;
+- sujet exact : `repo:adam-benyekkou@<id propriétaire>/eval-quiz-app@<id dépôt>:ref:refs/heads/main`.
+  GitHub présente le sujet avec les **identifiants numériques**, pas les noms :
+  la première version (par noms) a échoué avec `AADSTS700213`. Le script les lit via `gh api` ;
   un autre dépôt, une autre branche ou une PR ne peuvent pas obtenir de jeton ;
 - rôles minimaux : `AcrPush` sur l'ACR, `Contributor` sur le seul resource group ;
 - aucun mot de passe : GitHub échange un jeton OIDC court contre un jeton Azure ;

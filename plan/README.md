@@ -21,10 +21,12 @@ Sources : docs/02, 03, 04, 06, 08, 09.
 ```mermaid
 flowchart LR
     J0-->J3
+    J0-->J3B[J3B Terraform]
     J1-->J2
     J1-->J3
     J2-->J3
     J3-->J4
+    J3B-.alternative IaC, mêmes ressources.->J4
     J4-->J5
     J1-->J6A[J6-A CI PR]
     J2-->J6A
@@ -40,6 +42,7 @@ Règles de séquencement :
 
 - docs/03 impose que J1 soit validé avant tout déploiement cloud.
 - J0 se fait en parallèle de J1, car il peut bloquer J3.
+- J3B (Terraform) est un complément facultatif, pas un remplacement : `docs/02` exige `scripts/deploy.sh`/`destroy.sh` en Azure CLI, qui restent le livrable de référence. Ne pas faire gérer les mêmes ressources par les scripts et par Terraform en même temps (double coût, dérive d'état).
 
 ## Tableau d'avancement
 
@@ -51,6 +54,7 @@ Règles de séquencement :
 | J1 | [J1-conteneurisation-locale.md](J1-conteneurisation-locale.md) | feature/j1-analyse, feature/j1-backend-image, feature/j1-frontend-image, feature/j1-compose | — | À faire |
 | J2 | [J2-securite-images.md](J2-securite-images.md) | feature/j2-trivy-baseline, feature/j2-hardening | J1 | À faire |
 | J3 | [J3-azure-acr.md](J3-azure-acr.md) | feature/j3-azure-scripts | J0, J1, J2 | À faire |
+| J3B (complément IaC) | [J3B-terraform-iac.md](J3B-terraform-iac.md) | feature/terraform-iac | J0 (recouvre J3/J4) | À faire |
 | J4 | [J4-container-apps.md](J4-container-apps.md) | feature/j4-container-apps | J3 | À faire |
 | J5 | [J5-postgresql-cloud.md](J5-postgresql-cloud.md) | feature/j5-neon | J4 | À faire |
 | J6 | [J6-cicd.md](J6-cicd.md) | feature/j6-ci-images, feature/j6-branch-protection, feature/j6-cd-azure, feature/j6-demo-question | J1, J2 puis J3, J4 | À faire |

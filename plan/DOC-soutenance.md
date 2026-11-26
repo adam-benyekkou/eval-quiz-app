@@ -2,7 +2,7 @@
 
 **Branche(s)** : feature/docs (une seule branche, une seule PR pour les trois sections)
 **Dépend de** : au fil des jalons ; finalisation après J6
-**Assigné** : _à renseigner_
+**Assigné** : Ulrich & Adam
 **Statut** : à faire
 **Livrables** : sections du README (« Usage de l'IA », prérequis, lancement, déploiement, nettoyage), schémas d'architecture locale et cloud, support de soutenance (6 diapositives max), vérification finale avant remise
 

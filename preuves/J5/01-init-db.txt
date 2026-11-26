@@ -1,0 +1,12 @@
+[14:25:45] Vérification de la connexion TLS
+PostgreSQL 18.7 (3190d2f) on aarch64-unk
+[14:25:49] Application de database/init.sql (une seule fois)
+[14:25:51] Tables :
+              List of relations
+ Schema |     Name     | Type  |    Owner     
+--------+--------------+-------+--------------
+ public | answers      | table | neondb_owner
+ public | quiz_results | table | neondb_owner
+ public | users        | table | neondb_owner
+(3 rows)
+

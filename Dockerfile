@@ -24,7 +24,8 @@ RUN apk upgrade --no-cache
 COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
 
 # Valeurs par défaut, surchargées par Compose / Azure Container Apps
-ENV BACKEND_HOST=backend \
+ENV BACKEND_SCHEME=http \
+    BACKEND_HOST=backend \
     BACKEND_PORT=3007
 
 COPY --from=build /app/dist /usr/share/nginx/html

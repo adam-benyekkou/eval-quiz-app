@@ -14,17 +14,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Lint Dockerfiles
-        run: |
-          files=$(find . -not -path "./node_modules/*" -not -path "./.git/*" -iname "Dockerfile*")
-          if [ -z "$files" ]; then
-            echo "No Dockerfile found, skipping."
-            exit 0
-          fi
-          status=0
-          for f in $files; do
-            echo "::group::Linting $f"
-            docker run --rm -i hadolint/hadolint < "$f" || status=1
-            echo "::endgroup::"
-          done
-          exit $status
+      - name: Lint Dockerfile (frontend)
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+
+      - name: Lint backend/Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: backend/Dockerfile

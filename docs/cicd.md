@@ -5,8 +5,8 @@
 | Workflow | Déclencheur | Rôle |
 |---|---|---|
 | `hadolint.yml` | `pull_request` → `main` | Lint de tous les Dockerfile |
-| `trivy.yml` | `pull_request` → `main` | Scan du système de fichiers (vuln, secrets, misconfig), bloquant CRITICAL et HIGH |
-| `ci.yml` | `pull_request` → `main` | Build des deux images, scan Trivy des images construites, bloquant CRITICAL |
+| `trivy.yml` | `pull_request` → `main` | Scan du système de fichiers (vuln, secrets, misconfig), bloquant CRITICAL |
+| `ci.yml` | `pull_request` → `main` | Build des deux images puis scan Trivy de chacune (action partagée `.github/actions/build-scan`), bloquant CRITICAL |
 | `cd.yml` | `push` → `main` | Build, scan, push dans l'ACR (tag SHA), mise à jour des Container Apps |
 
 Les trois premiers ne se remplacent pas : le scan fichiers, le lint et le scan
@@ -16,11 +16,10 @@ d'images détectent des choses différentes. Seule la CD a accès à Azure.
 
 `ci.yml` n'a aucun secret (`permissions: contents: read`) et ne publie rien.
 
-- `build-quiz-backend` / `build-quiz-frontend` : buildx, cache GHA, image
-  exportée en archive pour le job suivant.
-- `trivy-image-quiz-backend` / `trivy-image-quiz-frontend` : rapport JSON
-  (CRITICAL + HIGH) conservé en artefact, puis étape **bloquante**
-  `severity: CRITICAL`, `exit-code: 1`. Pas de `continue-on-error`.
+- `build-quiz-backend` / `build-quiz-frontend` : un seul job par image, via
+  l'action `.github/actions/build-scan` (buildx, cache GHA, image chargée en
+  local, puis Trivy `severity: CRITICAL`, `exit-code: 1`). Pas de
+  `continue-on-error`. La CD réutilise la même action avant le push.
 - `ignore-unfixed: false` : un CRITICAL sans correctif publié bloque aussi, il
   est arbitré à la main plutôt que masqué. Contrepartie : une nouvelle CVE de
   l'image de base peut bloquer une PR sans que le code soit en cause ; on
@@ -33,8 +32,10 @@ que la CI ; `quiz-backend:baseline` → exit 1, images durcies → exit 0).
 
 Relevés sur une exécution réelle (docs/04 B.5), pas devinés :
 
-`build-quiz-backend`, `build-quiz-frontend`, `trivy-image-quiz-backend`,
-`trivy-image-quiz-frontend`, `trivy`, `hadolint`.
+`build-quiz-backend`, `build-quiz-frontend`, `trivy`, `hadolint`.
+
+Politique unique : **CRITICAL bloque**, partout (fichiers, images, CD). HIGH n'est
+plus un critère d'échec.
 
 (`Trivy` avec une majuscule est le contrôle créé par l'envoi SARIF vers l'onglet
 Security ; il n'est pas exigé.)

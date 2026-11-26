@@ -1,6 +1,6 @@
 name: CD Azure
 
-# J6-B : après fusion dans main uniquement (jamais sur pull_request : aucun
+# Après fusion dans main uniquement (jamais sur pull_request : aucun
 # secret ni droit Azure n'est exposé aux PR). Publie des images taguées avec le
 # SHA du commit puis met à jour les Container Apps (nouvelle révision).
 # Authentification OIDC (identité managée + identifiant fédéré limité à
@@ -46,32 +46,22 @@ jobs:
       - name: Login to ACR
         run: az acr login --name "$ACR_NAME"
 
-      # Même politique que la CI : le scan précède le push, un CRITICAL bloque.
-      - name: Build backend
-        run: docker build --tag "$ACR_NAME.azurecr.io/quiz-backend:$TAG" backend
-
-      - name: Trivy backend (CRITICAL bloquant)
-        uses: aquasecurity/trivy-action@v0.36.0
+      # Même action que la CI : le scan précède le push, un CRITICAL bloque.
+      - name: Build and scan backend
+        uses: ./.github/actions/build-scan
         with:
-          image-ref: ${{ env.ACR_NAME }}.azurecr.io/quiz-backend:${{ env.TAG }}
-          scanners: vuln
-          format: table
-          severity: CRITICAL
-          ignore-unfixed: false
-          exit-code: 1
+          image: ${{ env.ACR_NAME }}.azurecr.io/quiz-backend:${{ env.TAG }}
+          context: backend
+          dockerfile: backend/Dockerfile
+          cache-scope: quiz-backend
 
-      - name: Build frontend
-        run: docker build --tag "$ACR_NAME.azurecr.io/quiz-frontend:$TAG" .
-
-      - name: Trivy frontend (CRITICAL bloquant)
-        uses: aquasecurity/trivy-action@v0.36.0
+      - name: Build and scan frontend
+        uses: ./.github/actions/build-scan
         with:
-          image-ref: ${{ env.ACR_NAME }}.azurecr.io/quiz-frontend:${{ env.TAG }}
-          scanners: vuln
-          format: table
-          severity: CRITICAL
-          ignore-unfixed: false
-          exit-code: 1
+          image: ${{ env.ACR_NAME }}.azurecr.io/quiz-frontend:${{ env.TAG }}
+          context: .
+          dockerfile: Dockerfile
+          cache-scope: quiz-frontend
 
       - name: Push images
         run: |

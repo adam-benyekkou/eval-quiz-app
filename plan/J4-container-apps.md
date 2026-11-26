@@ -2,7 +2,7 @@
 
 **Branche(s)** : feature/j4-container-apps
 **Dépend de** : J3
-**Assigné** : _à renseigner_
+**Assigné** : Ulrich & Adam
 **Statut** : à faire
 **Livrables** : suite de `scripts/deploy.sh` (environnement + 2 apps), `docs/deploiement-azure.md` mis à jour, `preuves/J4/`
 

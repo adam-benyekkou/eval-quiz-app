@@ -2,31 +2,31 @@
 
 **Branche(s)** : feature/j1-analyse, feature/j1-backend-image, feature/j1-frontend-image, feature/j1-compose (une PR par branche, dans cet ordre)
 **Dépend de** : — ; doit être validé avant J3
-**Assigné** : _à renseigner_
-**Statut** : à faire
+**Assigné** : Ulrich & Adam
+**Statut** : en cours (sections 1-2 faites)
 **Livrables** : `backend/Dockerfile`, `Dockerfile` (frontend), `docker-compose.yml`, `.dockerignore`, `backend/.dockerignore`, `.env.example` à jour, `docs/architecture-locale.md` + schéma, `preuves/J1/`
 
 ## Section 1 — feature/j1-analyse (docs/08 §8)
 
-- [ ] Lister les composants, rôles et dépendances : frontend Vite, nginx, backend Express, PostgreSQL, Resend
-- [ ] Ports : 5173 (dev Vite), 3007 (backend), 5432 (PG), 80 (nginx conteneur) ; décider le port hôte (ex. 8087)
-- [ ] Variables : séparer publiques (POSTGRES_DB, FROM_EMAIL, PORT) et secrets (POSTGRES_PASSWORD, DATABASE_URL, RESEND_API_KEY, ADMIN_PASSWORD, JWT_SECRET)
-- [ ] Lire `backend/server.js` (routes, corps, codes HTTP, `/health`, usage de RESEND_API_KEY)
-- [ ] Comprendre `database/nginx/nginx.conf` (doublon de `nginx/nginx.conf` ?) et décider lequel est utilisé
-- [ ] Vérifier hors Docker que le backend démarre sans RESEND_API_KEY et sans PostgreSQL : `cd backend && npm ci && PORT=3007 node server.js` puis `curl -i localhost:3007/health` ; noter le résultat (conditionne J4)
-- [ ] Rédiger `docs/architecture-locale.md` avec un schéma réalisé par le groupe (Mermaid ou image)
-- [ ] Rédiger la justification des images de base et du volume nommé, en incluant le choix d'alpine plutôt que distroless/Chainguard (garder le shell pour le débogage, compromis assumé plutôt que surface d'attaque minimale)
+- [x] Lister les composants, rôles et dépendances : frontend Vite, nginx, backend Express, PostgreSQL, Resend
+- [x] Ports : 5173 (dev Vite), 3007 (backend), 5432 (PG), 80 (nginx conteneur) ; décider le port hôte (ex. 8087)
+- [x] Variables : séparer publiques (POSTGRES_DB, FROM_EMAIL, PORT) et secrets (POSTGRES_PASSWORD, DATABASE_URL, RESEND_API_KEY, ADMIN_PASSWORD, JWT_SECRET)
+- [x] Lire `backend/server.js` (routes, corps, codes HTTP, `/health`, usage de RESEND_API_KEY)
+- [x] Comprendre `database/nginx/nginx.conf` (doublon de `nginx/nginx.conf` ?) et décider lequel est utilisé
+- [x] Vérifier hors Docker que le backend démarre sans RESEND_API_KEY et sans PostgreSQL : `cd backend && npm ci && PORT=3007 node server.js` puis `curl -i localhost:3007/health` ; noter le résultat (conditionne J4)
+- [x] Rédiger `docs/architecture-locale.md` avec un schéma réalisé par le groupe (Mermaid ou image)
+- [x] Rédiger la justification des images de base et du volume nommé, en incluant le choix d'alpine plutôt que distroless/Chainguard (garder le shell pour le débogage, compromis assumé plutôt que surface d'attaque minimale)
 
 ## Section 2 — feature/j1-backend-image
 
-- [ ] Image `node:20-alpine` (Node ≥ 20), tag précis, pas `latest` — **décision prise** : on garde alpine (shell + `apk` disponibles), pas distroless/Chainguard, pour conserver `docker exec -it <ctn> sh` en débogage ; à justifier à l'oral comme un compromis explicite (surface d'attaque légèrement plus large contre accès de diagnostic direct), pas une méconnaissance de l'alternative durcie
-- [ ] `COPY package*.json` puis `npm ci --omit=dev` puis COPY du code
-- [ ] `USER node`, `EXPOSE 3007`, `CMD ["node","server.js"]`
-- [ ] `backend/.dockerignore` (node_modules, .env*, .git)
-- [ ] Vérifier la présence de `package-lock.json` dans `backend/` (si absent, `npm ci` échoue : utiliser `npm install --omit=dev` et le justifier, ou générer le lock dans une PR dédiée)
-- [ ] `docker build -t quiz-backend:local backend && docker run --rm -p 3007:3007 quiz-backend:local`
-- [ ] `curl -i localhost:3007/health` = 200 + `{"status":"ok"}`
-- [ ] Hadolint local : `docker run --rm -i hadolint/hadolint < backend/Dockerfile`
+- [x] Image `node:20-alpine` (Node ≥ 20), tag précis, pas `latest` — **décision prise** : on garde alpine (shell + `apk` disponibles), pas distroless/Chainguard, pour conserver `docker exec -it <ctn> sh` en débogage ; à justifier à l'oral comme un compromis explicite (surface d'attaque légèrement plus large contre accès de diagnostic direct), pas une méconnaissance de l'alternative durcie
+- [x] `COPY package*.json` puis `npm ci --omit=dev` puis COPY du code
+- [x] `USER node`, `EXPOSE 3007`, `CMD ["node","server.js"]`
+- [x] `backend/.dockerignore` (node_modules, .env*, .git)
+- [x] Vérifier la présence de `package-lock.json` dans `backend/` (si absent, `npm ci` échoue : utiliser `npm install --omit=dev` et le justifier, ou générer le lock dans une PR dédiée)
+- [x] `docker build -t quiz-backend:local backend && docker run --rm -p 3007:3007 quiz-backend:local`
+- [x] `curl -i localhost:3007/health` = 200 + `{"status":"ok"}`
+- [x] Hadolint local : `docker run --rm -i hadolint/hadolint < backend/Dockerfile`
 
 ## Section 3 — feature/j1-frontend-image (Dockerfile racine)
 

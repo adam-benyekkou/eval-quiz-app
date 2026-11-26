@@ -2,7 +2,7 @@
 
 **Branche(s)** : feature/j2-trivy-baseline, feature/j2-hardening (une PR par branche, dans cet ordre)
 **Dépend de** : J1
-**Assigné** : _à renseigner_
+**Assigné** : Ulrich & Adam
 **Statut** : à faire
 **Livrables** : `docs/securite-trivy.md`, `preuves/J2/trivy-avant.*`, `preuves/J2/trivy-apres.*`, éventuel `.trivyignore` justifié
 

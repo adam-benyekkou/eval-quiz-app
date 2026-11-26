@@ -1,0 +1,14 @@
+# J6-A — blocage Trivy sur CRITICAL (contrôle local, rien poussé)
+
+Même commande que la CI : trivy image --scanners vuln --severity CRITICAL --exit-code 1
+
+## quiz-backend:baseline (avant durcissement J2)
+Total: 1 (CRITICAL: 1)
+│ tar (package.json) │ CVE-2026-59873 │ CRITICAL │ fixed  │ 6.2.1             │ 7.5.19        │ tar: node-tar: Denial of Service via crafted gzip bomb │
+exit=1  (attendu 1 : le contrôle bloque)
+
+## quiz-backend:local (durci)
+exit=0  (attendu 0)
+
+## quiz-frontend:local (durci)
+exit=0  (attendu 0)

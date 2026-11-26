@@ -1,0 +1,23 @@
+# J6-B — exécution CD réussie
+
+run: https://github.com/adam-benyekkou/eval-quiz-app/actions/runs/45833018227
+commit: 05428de
+conclusion: success
+
+$ az acr repository show-tags (quiz-backend)
+05428de
+b562612
+5bc5b9e
+
+$ image déployée
+quiz-backend:05428de
+quiz-frontend:05428de
+
+CreatedTime                  Active    Replicas    TrafficWeight    HealthState    ProvisioningState    Name
+---------------------------  --------  ----------  ---------------  -------------  -------------------  ---------------
+2026-11-26T13:52:46.0255815  True      1           100              Healthy        Provisioned          backend--latest
+CreatedTime                  Active    Replicas    TrafficWeight    HealthState    ProvisioningState    Name
+---------------------------  --------  ----------  ---------------  -------------  -------------------  ----------------
+2026-11-26T13:53:13.3634802  True      1           100              Healthy        Provisioned          frontend--latest
+
+{"status":"ok"}

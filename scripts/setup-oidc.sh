@@ -17,9 +17,15 @@ source "${SCRIPT_DIR}/lib.sh"
 DEPLOY_IDENTITY="${DEPLOY_IDENTITY:-id-quiz-github-deploy}"
 GH_REPO="${GH_REPO:-adam-benyekkou/eval-quiz-app}"
 FED_NAME="github-main"
-SUBJECT="repo:${GH_REPO}:ref:refs/heads/main"
+# GitHub présente le sujet OIDC avec les identifiants NUMÉRIQUES du propriétaire et
+# du dépôt (repo:<owner>@<id>/<repo>@<id>:ref:…), pas avec les noms : le format
+# par nom ne correspond à aucune assertion (erreur AADSTS700213).
+OWNER_ID="$(gh api "repos/${GH_REPO}" --jq .owner.id)"
+REPO_ID="$(gh api "repos/${GH_REPO}" --jq .id)"
+SUBJECT="repo:${GH_REPO%%/*}@${OWNER_ID}/${GH_REPO#*/}@${REPO_ID}:ref:refs/heads/main"
 
 require_cmd az
+require_cmd gh
 require_az_login
 
 log "Identité de déploiement ${DEPLOY_IDENTITY}"
@@ -30,7 +36,14 @@ TENANT_ID="$(az account show --query tenantId --output tsv)"
 SUBSCRIPTION_ID="$(az account show --query id --output tsv)"
 
 log "Identifiant fédéré : ${SUBJECT}"
-if ! az identity federated-credential show --identity-name "${DEPLOY_IDENTITY}" --resource-group "${RG}" --name "${FED_NAME}" >/dev/null 2>&1; then
+if az identity federated-credential show --identity-name "${DEPLOY_IDENTITY}" --resource-group "${RG}" --name "${FED_NAME}" >/dev/null 2>&1; then
+  az identity federated-credential update \
+    --identity-name "${DEPLOY_IDENTITY}" \
+    --resource-group "${RG}" \
+    --name "${FED_NAME}" \
+    --subject "${SUBJECT}" \
+    --output none
+else
   az identity federated-credential create \
     --identity-name "${DEPLOY_IDENTITY}" \
     --resource-group "${RG}" \

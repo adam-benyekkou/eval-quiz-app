@@ -2,7 +2,7 @@
 
 **Branche(s)** : feature/j0-azure-check
 **Dépend de** : — (à faire en premier : risque principal de planning)
-**Assigné** : IA:DeepSeek (relecture Adam)
+**Assigné** : Ulrich & Adam
 **Statut** : en cours
 **Livrables** : `preuves/J0/azure-check.md` (expurgé : pas d'ID d'abonnement complet ni de tenant)
 

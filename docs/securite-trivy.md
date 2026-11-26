@@ -146,7 +146,7 @@ ignoré, vérifié en J1).
 | 2 | `apk upgrade --no-cache` dans les deux images finales | Les images de base embarquent des paquets Alpine plus anciens que le dépôt : les versions corrigées existent (`Fixed Version` renseignée). | Supprime les CVE Alpine corrigeables (OpenSSL, musl, zlib côté backend ; brotli, curl, expat, libxml2, libxslt côté frontend). |
 | 3 | Retrait de `npm` et `corepack` de l'image backend d'exécution | Ce sont des outils d'installation, jamais appelés par `node server.js` ; ils embarquent `tar`, `pacote`, `sigstore`, `glob`, `minimatch`, `brace-expansion`, `cross-spawn`, `ip-address`. | Supprime les 38 findings npm (dont le CRITICAL `tar`). `node`, le shell et `wget` restent disponibles pour le diagnostic. |
 | 4 | `HEALTHCHECK` ajouté aux deux Dockerfiles | Corrige `DS-0026` (LOW) et rend l'état des conteneurs lisible (`healthy`). | `trivy config` : 0 finding. |
-| 5 | Compose : `read_only`, `tmpfs`, `cap_drop: [ALL]`, `no-new-privileges` sur `backend` et `frontend` | Le backend n'écrit aucun fichier ; Nginx n'écrit que pid/caches/configuration rendue. Réduit l'impact d'une compromission (pas d'écriture dans l'image, pas de capabilities). | Les trois services démarrent `healthy` ; voir preuve `02-hardening.md` §E. |
+| 5 | Compose : `read_only`, `tmpfs`, `cap_drop: [ALL]`, `no-new-privileges` sur `backend` et `frontend` | Le backend n'écrit aucun fichier ; Nginx n'écrit que pid/caches/configuration rendue. Réduit l'impact d'une compromission (pas d'écriture dans l'image, pas de capabilities). | Les trois services démarrent `healthy` ; voir preuve `02-hardening.md` §F. |
 
 `npm ci --omit=dev`, l'utilisateur non-root et l'absence d'outils de build dans l'image
 finale étaient déjà en place depuis J1 ; ils ont été revérifiés, pas refaits.
@@ -160,8 +160,8 @@ finale étaient déjà en place depuis J1 ; ils ont été revérifiés, pas refa
   diagnostic. Les CVE Alpine corrigeables sont supprimées par `apk upgrade`, ce qui rend
   le gain résiduel de distroless faible pour ce projet.
 - **Mise à jour forcée des dépendances npm applicatives** : Trivy ne trouve **aucune**
-  vulnérabilité dans `/app/node_modules` ; seules deux MEDIUM transitives subsistent
-  (voir §4). Les corriger exige `glob` 14 et `minimatch` 11, deux montées majeures dans
+  vulnérabilité CRITICAL/HIGH dans `/app/node_modules` ; seules deux MEDIUM transitives
+  subsistent (voir §4). Les corriger exige `glob` 14 et `minimatch` 11, deux montées majeures dans
   la chaîne `resend → @react-email/render → js-beautify` : risque de casser le rendu des
   emails sans test automatisé. Non appliqué, documenté en résiduel plutôt qu'ignoré.
 - **Suppression des modules Nginx inutilisés** (`xslt`, `geoip`, `njs`, `image-filter`) :
@@ -199,7 +199,7 @@ scans et sont assumées explicitement, pas masquées.
 
 ## 5. Parcours J1 rejoué sur les images corrigées
 
-Détail et sorties : `preuves/J2/02-hardening.md` §D. Résumé : `/`, `/gestion-quiz`,
+Détail et sorties : `preuves/J2/02-hardening.md` §F. Résumé : `/`, `/gestion-quiz`,
 `/health` = 200 ; inscription 201 ; résultat 201 (`quizResultId` créé) ; login admin et
 liste des résultats OK ; `docker compose down` puis `up` conserve le volume `pgdata` et le
 compte de résultats. Les conteneurs tournent en lecture seule, non-root, sans capabilities.

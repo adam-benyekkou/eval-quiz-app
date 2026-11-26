@@ -2,7 +2,7 @@
 
 **Branche(s)** (ordre) : feature/j6-ci-images (J6-A : build images + Trivy image bloquant CRITICAL), feature/j6-branch-protection (J6-A : protection de `main` et checks requis, documentation et preuves, réglages faits dans l'interface), feature/j6-cd-azure (J6-B : publication ACR + mise à jour Container Apps après fusion), feature/j6-demo-question (J6-D)
 **Dépend de** : J1, J2 pour J6-A ; J3, J4 pour J6-B
-**Assigné** : _à renseigner_
+**Assigné** : Ulrich & Adam
 **Statut** : à faire
 **Livrables** : `.github/workflows/ci.yml`, `.github/workflows/cd.yml`, `docs/cicd.md`, `preuves/J6/`
 

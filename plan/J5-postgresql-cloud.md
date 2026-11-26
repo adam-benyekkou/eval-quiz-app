@@ -2,7 +2,7 @@
 
 **Branche(s)** : feature/j5-neon
 **Dépend de** : J4
-**Assigné** : _à renseigner_
+**Assigné** : Ulrich & Adam
 **Statut** : à faire
 **Livrables** : `database/README.md` (procédure d'init, sans secret), mise à jour de `scripts/deploy.sh` (injection du secret), `preuves/J5/`. Un échec ici n'annule pas J1 à J4 ni J6 (docs/03).
 

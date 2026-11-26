@@ -2,7 +2,7 @@
 
 **Branche(s)** : feature/j3-azure-scripts
 **Dépend de** : J0, J1, J2
-**Assigné** : _à renseigner_
+**Assigné** : Ulrich & Adam
 **Statut** : à faire
 **Livrables** : `scripts/deploy.sh` (infra + ACR à ce stade), `scripts/destroy.sh`, `scripts/lib.sh`, `docs/deploiement-azure.md`, `preuves/J3/`
 

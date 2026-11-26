@@ -2,7 +2,7 @@
 
 **Branche(s)** : feature/terraform-iac
 **Dépend de** : J0 (région, quotas) ; recouvre les mêmes ressources que J3 et J4
-**Assigné** : _à renseigner_
+**Assigné** : Ulrich & Adam
 **Statut** : à faire
 **Livrables** : `terraform/main.tf`, `terraform/variables.tf`, `terraform/outputs.tf`, `terraform/backend.tf`, `terraform/README.md`, `preuves/J3B/`
 

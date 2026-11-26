@@ -8,7 +8,7 @@ Sources : docs/02, 03, 04, 06, 08, 09.
 
 1. Une branche par feature depuis `main` à jour (`git switch main && git pull && git switch -c feature/<nom>`), nom exact dans chaque étape.
 2. Une PR par branche, base = `main` du fork ; pas de push direct sur `main`, pas de force-push.
-3. Prendre une tâche : écrire son nom (ou `IA:<outil>`) dans le champ Assigné, cocher au fur et à mesure, commiter la mise à jour du plan avec le code.
+3. Prendre une tâche : écrire `Ulrich & Adam` dans le champ Assigné, cocher au fur et à mesure, commiter la mise à jour du plan avec le code.
 4. Une case n'est cochée que si la commande de preuve a été exécutée ; coller la sortie expurgée dans `preuves/Jx/`. Pas de sortie, pas de coche.
 5. Les cases « Je sais expliquer » sont cochées par l'humain uniquement après réexplication sans aide (docs/09).
 6. Secrets : jamais envoyés à une IA ni commités (mots de passe, tokens, clé Resend, chaîne PostgreSQL réelle, secrets GitHub, sorties `az` avec identifiants). Preuves expurgées avant commit.

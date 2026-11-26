@@ -2,7 +2,7 @@
 
 **Branche(s)** : feature/j0-azure-check
 **Dépend de** : — (à faire en premier : risque principal de planning)
-**Assigné** : _à renseigner_
+**Assigné** : Ulrich & Adam
 **Statut** : à faire
 **Livrables** : `preuves/J0/azure-check.md` (expurgé : pas d'ID d'abonnement complet ni de tenant)
 

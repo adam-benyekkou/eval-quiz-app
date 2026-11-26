@@ -41,9 +41,13 @@ Le script stocke la valeur comme secret `database-url` de l'app et l'expose par
 
 ### TLS
 
-`sslmode=require` chiffre la liaison mais **ne vérifie pas** le certificat du
-serveur (contrairement à `verify-full`). Le backend (`pg` 8) lit le mode dans la
-chaîne : aucune modification de `server.js`.
+Le backend (`pg` 8.23, `pg-connection-string` 2.14) traite `sslmode=require` comme
+`verify-full` : la liaison est chiffrée **et** le certificat du serveur est
+vérifié (plus strict que libpq, qui ne vérifie pas avec `require`). Neon présente
+un certificat public valide, donc aucune modification de `server.js`. Au
+démarrage, `pg` affiche un avertissement qui le rappelle ; il est sans
+conséquence. Pour le comportement libpq, il faudrait
+`uselibpqcompat=true&sslmode=require` (inutile ici).
 
 ### Base injoignable
 

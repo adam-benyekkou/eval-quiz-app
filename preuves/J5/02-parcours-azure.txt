@@ -1,0 +1,6 @@
+$ POST /api/users (via frontend Azure)
+{"id":2,"firstname":"ParcoursAzure","email":"azure@example.com"}
+$ POST /api/results
+HTTP/2 201 
+{"message":"Results saved and email sent","quizResultId":1}
+2|1|1

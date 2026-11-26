@@ -56,7 +56,7 @@ Règles de séquencement :
 | J3 | [J3-azure-acr.md](J3-azure-acr.md) | feature/j3-azure-scripts | J0, J1, J2 | En cours (ACR et images publiés, preuves consignées ; PR à ouvrir) |
 | J3B (complément IaC) | [J3B-terraform-iac.md](J3B-terraform-iac.md) | feature/terraform-iac | J0 (recouvre J3/J4) | À faire |
 | J4 | [J4-container-apps.md](J4-container-apps.md) | feature/j4-container-apps | J3 | En cours (déployé et vérifié ; PR à ouvrir) |
-| J5 | [J5-postgresql-cloud.md](J5-postgresql-cloud.md) | feature/j5-neon | J4 | À faire |
+| J5 | [J5-postgresql-cloud.md](J5-postgresql-cloud.md) | feature/j5-neon | J4 | En cours (déployé et vérifié ; PR à ouvrir) |
 | J6 | [J6-cicd.md](J6-cicd.md) | feature/j6-ci-images, feature/j6-branch-protection, feature/j6-cd-azure, feature/j6-demo-question | J1, J2 puis J3, J4 | À faire |
 | DOC | [DOC-soutenance.md](DOC-soutenance.md) | feature/docs | au fil de l'eau | À faire |
 

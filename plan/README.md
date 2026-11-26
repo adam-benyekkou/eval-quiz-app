@@ -50,7 +50,7 @@ Règles de séquencement :
 |---|---|---|---|---|
 | Socle CI déjà fusionné | — | feature/co-author-commit, feature/trivy-scan, feature/hadolint | — | Fait (PR #1 à #3) |
 | Plan | ce dossier | feature/plan | — | En cours |
-| J0 | [J0-verification-azure.md](J0-verification-azure.md) | feature/j0-azure-check | — | À faire |
+| J0 | [J0-verification-azure.md](J0-verification-azure.md) | feature/j0-azure-check | — | En cours (preuves consignées ; signalement formateur et cases humaines restants) |
 | J1 | [J1-conteneurisation-locale.md](J1-conteneurisation-locale.md) | feature/j1-analyse, feature/j1-backend-image, feature/j1-frontend-image, feature/j1-compose | — | À faire |
 | J2 | [J2-securite-images.md](J2-securite-images.md) | feature/j2-trivy-baseline, feature/j2-hardening | J1 | À faire |
 | J3 | [J3-azure-acr.md](J3-azure-acr.md) | feature/j3-azure-scripts | J0, J1, J2 | À faire |

@@ -3,7 +3,7 @@
 **Branche(s)** : feature/j1-analyse, feature/j1-backend-image, feature/j1-frontend-image, feature/j1-compose (une PR par branche, dans cet ordre)
 **Dépend de** : — ; doit être validé avant J3
 **Assigné** : Ulrich & Adam
-**Statut** : en cours (section 1 faite)
+**Statut** : en cours (sections 1-2 faites)
 **Livrables** : `backend/Dockerfile`, `Dockerfile` (frontend), `docker-compose.yml`, `.dockerignore`, `backend/.dockerignore`, `.env.example` à jour, `docs/architecture-locale.md` + schéma, `preuves/J1/`
 
 ## Section 1 — feature/j1-analyse (docs/08 §8)
@@ -19,14 +19,14 @@
 
 ## Section 2 — feature/j1-backend-image
 
-- [ ] Image `node:20-alpine` (Node ≥ 20), tag précis, pas `latest` — **décision prise** : on garde alpine (shell + `apk` disponibles), pas distroless/Chainguard, pour conserver `docker exec -it <ctn> sh` en débogage ; à justifier à l'oral comme un compromis explicite (surface d'attaque légèrement plus large contre accès de diagnostic direct), pas une méconnaissance de l'alternative durcie
-- [ ] `COPY package*.json` puis `npm ci --omit=dev` puis COPY du code
-- [ ] `USER node`, `EXPOSE 3007`, `CMD ["node","server.js"]`
-- [ ] `backend/.dockerignore` (node_modules, .env*, .git)
-- [ ] Vérifier la présence de `package-lock.json` dans `backend/` (si absent, `npm ci` échoue : utiliser `npm install --omit=dev` et le justifier, ou générer le lock dans une PR dédiée)
-- [ ] `docker build -t quiz-backend:local backend && docker run --rm -p 3007:3007 quiz-backend:local`
-- [ ] `curl -i localhost:3007/health` = 200 + `{"status":"ok"}`
-- [ ] Hadolint local : `docker run --rm -i hadolint/hadolint < backend/Dockerfile`
+- [x] Image `node:20-alpine` (Node ≥ 20), tag précis, pas `latest` — **décision prise** : on garde alpine (shell + `apk` disponibles), pas distroless/Chainguard, pour conserver `docker exec -it <ctn> sh` en débogage ; à justifier à l'oral comme un compromis explicite (surface d'attaque légèrement plus large contre accès de diagnostic direct), pas une méconnaissance de l'alternative durcie
+- [x] `COPY package*.json` puis `npm ci --omit=dev` puis COPY du code
+- [x] `USER node`, `EXPOSE 3007`, `CMD ["node","server.js"]`
+- [x] `backend/.dockerignore` (node_modules, .env*, .git)
+- [x] Vérifier la présence de `package-lock.json` dans `backend/` (si absent, `npm ci` échoue : utiliser `npm install --omit=dev` et le justifier, ou générer le lock dans une PR dédiée)
+- [x] `docker build -t quiz-backend:local backend && docker run --rm -p 3007:3007 quiz-backend:local`
+- [x] `curl -i localhost:3007/health` = 200 + `{"status":"ok"}`
+- [x] Hadolint local : `docker run --rm -i hadolint/hadolint < backend/Dockerfile`
 
 ## Section 3 — feature/j1-frontend-image (Dockerfile racine)
 

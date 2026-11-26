@@ -205,6 +205,26 @@ else
       JWT_SECRET=secretref:jwt-secret ADMIN_PASSWORD=secretref:admin-password RESEND_API_KEY=secretref:resend-api-key \
     --output none
 fi
+# J5 : chaîne PostgreSQL distante (Neon). Lue de l'environnement de l'humain,
+# jamais écrite dans un fichier ni affichée. Absente : le backend démarre sans
+# base (J4). Remarque : `az` reçoit la valeur en argument, visible un instant
+# dans la liste des processus de la machine locale.
+if [ -n "${DATABASE_URL:-}" ]; then
+  log "Injection du secret database-url dans ${BACKEND_APP} (valeur non affichée)"
+  az containerapp secret set \
+    --name "${BACKEND_APP}" \
+    --resource-group "${RG}" \
+    --secrets "database-url=${DATABASE_URL}" \
+    --output none
+  az containerapp update \
+    --name "${BACKEND_APP}" \
+    --resource-group "${RG}" \
+    --set-env-vars DATABASE_URL=secretref:database-url \
+    --output none
+  log "OK DATABASE_URL branchée (nouvelle révision)"
+else
+  log "DATABASE_URL absente : backend sans base (voir database/README.md pour J5)"
+fi
 BACKEND_FQDN="$(az containerapp show --name "${BACKEND_APP}" --resource-group "${RG}" --query properties.configuration.ingress.fqdn --output tsv)"
 log "OK backend https://${BACKEND_FQDN}"
 

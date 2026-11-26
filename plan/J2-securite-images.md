@@ -3,17 +3,17 @@
 **Branche(s)** : feature/j2-trivy-baseline, feature/j2-hardening (une PR par branche, dans cet ordre)
 **Dépend de** : J1
 **Assigné** : Ulrich & Adam
-**Statut** : à faire
+**Statut** : en cours (section 1 faite)
 **Livrables** : `docs/securite-trivy.md`, `preuves/J2/trivy-avant.*`, `preuves/J2/trivy-apres.*`, éventuel `.trivyignore` justifié
 
 ## Section 1 — feature/j2-trivy-baseline (aucune correction)
 
-- [ ] Construire les images telles que livrées : `quiz-backend:baseline`, `quiz-frontend:baseline`
-- [ ] `trivy image --severity CRITICAL,HIGH,MEDIUM --format table quiz-backend:baseline > preuves/J2/trivy-avant-backend.txt` (idem frontend)
-- [ ] Même scan au format JSON
-- [ ] `trivy config .` et `trivy fs --scanners secret .`
-- [ ] Tableau récapitulatif dans `docs/securite-trivy.md` (nb CRITICAL/HIGH/MEDIUM par image, paquets, origine)
-- [ ] Pour chaque CRITICAL/HIGH : pertinent ou non (exploitable, paquet utilisé à l'exécution)
+- [x] Construire les images telles que livrées : `quiz-backend:baseline`, `quiz-frontend:baseline`
+- [x] `trivy image --severity CRITICAL,HIGH,MEDIUM --format table quiz-backend:baseline > preuves/J2/trivy-avant-backend.txt` (idem frontend)
+- [x] Même scan au format JSON
+- [x] `trivy config .` et `trivy fs --scanners secret .`
+- [x] Tableau récapitulatif dans `docs/securite-trivy.md` (nb CRITICAL/HIGH/MEDIUM par image, paquets, origine)
+- [x] Pour chaque CRITICAL/HIGH : pertinent ou non (exploitable, paquet utilisé à l'exécution)
 
 ## Section 2 — feature/j2-hardening
 

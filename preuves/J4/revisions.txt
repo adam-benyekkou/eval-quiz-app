@@ -1,0 +1,9 @@
+CreatedTime                  Active    Replicas    TrafficWeight    HealthState    ProvisioningState    Name
+---------------------------  --------  ----------  ---------------  -------------  -------------------  ---------------
+2026-11-26T12:53:05.2299354  True      1           100              Healthy        Provisioned          backend--latest
+CreatedTime                  Active    Replicas    TrafficWeight    HealthState    ProvisioningState    Name
+---------------------------  --------  ----------  ---------------  -------------  -------------------  ----------------
+2026-11-26T12:53:23.1983593  True      1           100              Healthy        Provisioned          frontend--latest
+Registre                    Ext    Port
+--------------------------  -----  ------
+acrquizevaladam.azurecr.io  True   3007

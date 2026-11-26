@@ -17,6 +17,10 @@ LOCATION="${LOCATION:-francecentral}"
 ACR_NAME="${ACR_NAME:-acrquizevaladam}"
 ENV_NAME="${ENV_NAME:-cae-quiz-eval}"
 
+PULL_IDENTITY="${PULL_IDENTITY:-id-quiz-acr-pull}"
+BACKEND_APP="${BACKEND_APP:-backend}"
+FRONTEND_APP="${FRONTEND_APP:-frontend}"
+
 IMAGE_BACKEND="quiz-backend"
 IMAGE_FRONTEND="quiz-frontend"
 LOGIN_SERVER="${ACR_NAME}.azurecr.io"

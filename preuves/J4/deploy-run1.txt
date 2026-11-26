@@ -1,0 +1,25 @@
+Result
+--------
+5bc5b9e
+70251de
+62366af
+[13:51:14] Tags de quiz-frontend :
+Result
+--------
+5bc5b9e
+70251de
+62366af
+[13:51:17] Environnement Container Apps cae-quiz-eval
+[13:51:20] OK environnement cae-quiz-eval
+[13:51:20] Identité managée de pull id-quiz-acr-pull (AcrPull sur acrquizevaladam)
+[13:51:34] Backend backend : acrquizevaladam.azurecr.io/quiz-backend:5bc5b9e
+[13:51:51] Frontend frontend : acrquizevaladam.azurecr.io/quiz-frontend:5bc5b9e
+[13:52:12] ATTENTION : IP sortantes du frontend non exposées (environnement express) ; backend joignable publiquement, protégé par l'authentification applicative seulement
+[13:52:12] Révisions :
+CreatedTime                  Active    Replicas    TrafficWeight    HealthState    ProvisioningState    Name
+---------------------------  --------  ----------  ---------------  -------------  -------------------  ---------------
+2026-11-26T12:51:44.8397895  True      1           100              Healthy        Provisioned          backend--latest
+CreatedTime                  Active    Replicas    TrafficWeight    HealthState    ProvisioningState    Name
+---------------------------  --------  ----------  ---------------  -------------  -------------------  ----------------
+2026-11-26T12:52:01.7594572  True      1           100              Healthy        Provisioned          frontend--latest
+[13:52:18] Terminé. Frontend : https://frontend.icywater-e65437c8.francecentral.azurecontainerapps.io (test : curl -i https://frontend.icywater-e65437c8.francecentral.azurecontainerapps.io/health)

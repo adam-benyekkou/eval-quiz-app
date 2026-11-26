@@ -1,0 +1,31 @@
+$ curl -i https://<frontend>/health
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+server: nginx/1.31.7
+access-control-allow-origin: *
+etag: W/"f-VaSQ4oDUiZblZNAEkkN+sX+q3Sg"
+content-length: 15
+x-powered-by: Express
+ratelimit-policy: 100;w=900
+ratelimit-limit: 100
+ratelimit-remaining: 97
+ratelimit-reset: 675
+
+{"status":"ok"}
+
+GET / -> 200
+GET /gestion-quiz -> 200
+
+$ POST /api/users sans PostgreSQL
+HTTP/2 400 
+content-type: application/json; charset=utf-8
+server: nginx/1.31.7
+access-control-allow-origin: *
+etag: W/"2c-fFqyMERAcKq9vSYDV1PwvZfULRI"
+content-length: 44
+x-powered-by: Express
+ratelimit-policy: 5;w=900
+$ POST /api/users sans PostgreSQL (DATABASE_URL absente)
+HTTP/2 500 
+{"error":"Internal server error"}
+

@@ -1,0 +1,8 @@
+Connecting to the container 'backend'...
+Successfully Connected to container: 'backend' [Revision: 'backend--latest', Replica: 'backend--latest-a8666d82-3b6b-4734-b9f0-871acb300f52']
+errno: -111,
+code: 'ECONNREFUSED',
+syscall: 'connect',
+address: '127.0.0.1',
+port: 5432
+}

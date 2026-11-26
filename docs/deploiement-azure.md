@@ -159,3 +159,54 @@ conservation des preuves.
 - [J3 — plan](../plan/J3-azure-acr.md)
 - [J0 — vérification Azure](../plan/J0-verification-azure.md)
 - [Architecture locale](architecture-locale.md)
+
+## J4 — Container Apps (frontend et backend)
+
+`./scripts/deploy.sh` enchaîne désormais : resource group, ACR, images (J3), puis
+environnement Container Apps `cae-quiz-eval`, identité managée `id-quiz-acr-pull`
+(rôle `AcrPull`), backend et frontend. Il est relançable : une app existante est
+mise à jour (`az containerapp update`), pas recréée.
+
+### Constat : environnement « express »
+
+L'abonnement Azure for Students ne crée que des environnements **express**
+(`az containerapp env create` n'offre pas d'option pour en choisir un autre).
+Conséquences vérifiées pendant J3B/J4 :
+
+| Limite express | Effet sur le projet |
+|---|---|
+| Pas de service discovery interne | Le nom court `backend` ne résout pas : nginx échoue (`host not found in upstream`). Le frontend joint le backend par son **FQDN public**. |
+| Pas de HTTP clair (`allowInsecure` refusé) | nginx proxifie en **HTTPS** : `BACKEND_SCHEME=https`, `BACKEND_PORT=443`. |
+| Routage par en-tête `Host` | Le template nginx envoie `Host: ${BACKEND_HOST}` (sinon 404 de l'ingress). |
+| Identité système non supportée | Pull ACR par identité **user-assigned** uniquement. |
+| `revision restart` non supporté | Mettre à jour l'image crée la révision. |
+
+### Exposition du backend (écart assumé)
+
+Le backend est en ingress **externe** : c'est la seule façon pour nginx de
+l'atteindre en express. La restriction d'IP au seul frontend n'est pas
+applicable : l'API n'expose pas ses IP sortantes (`outboundIpAddresses` = null).
+Le script le signale au lieu d'inventer une règle. Le backend reste protégé par
+l'authentification applicative (JWT, mot de passe admin, limiteurs de débit).
+Pour un ingress réellement interne : environnement standard, hors périmètre de
+cet abonnement.
+
+### Secrets
+
+`JWT_SECRET`, `ADMIN_PASSWORD`, `RESEND_API_KEY` sont lus de l'environnement ;
+absents, le script génère des valeurs aléatoires (jamais affichées ni écrites) et
+les stocke comme **secrets** de l'app, référencés par `secretref:`. Ils ne sont
+appliqués qu'à la création de l'app.
+
+### Vérifier
+
+```bash
+FQDN=$(az containerapp show -n frontend -g rg-quiz-eval --query properties.configuration.ingress.fqdn -o tsv)
+curl -i https://$FQDN/health          # 200 {"status":"ok"}
+az containerapp revision list -n backend  -g rg-quiz-eval -o table
+az containerapp revision list -n frontend -g rg-quiz-eval -o table
+```
+
+Sans PostgreSQL (J5), `/health` répond 200 et `POST /api/users` répond 500
+(`ECONNREFUSED 127.0.0.1:5432`) : `/health` ne prouve pas la base.
+Preuves : `preuves/J4/`.

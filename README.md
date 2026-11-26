@@ -69,9 +69,7 @@ flowchart LR
         direction TB
         h[hadolint]
         t[trivy<br/>fichiers, secrets, config]
-        b[build-quiz-*]
-        ti[trivy-image-quiz-*<br/>bloquant CRITICAL]
-        b --> ti
+        b[build-quiz-*<br/>build + Trivy, bloquant CRITICAL]
     end
 
     pr --> ci
@@ -95,9 +93,9 @@ flowchart LR
 | Brique | Fichier | Déclencheur | Rôle |
 |---|---|---|---|
 | **Hadolint** | `.github/workflows/hadolint.yml` | PR vers `main` | Lint de tous les Dockerfile : mauvaises pratiques (tags non fixés, utilisateur root, couches inutiles). |
-| **Trivy — système de fichiers** | `.github/workflows/trivy.yml` | PR vers `main` | Scan du dépôt : vulnérabilités des dépendances, secrets committés, mauvaises configurations (Dockerfile). Bloquant CRITICAL et HIGH ; rapport SARIF dans l'onglet Security. |
+| **Trivy — système de fichiers** | `.github/workflows/trivy.yml` | PR vers `main` | Scan du dépôt : vulnérabilités des dépendances, secrets committés, mauvaises configurations (Dockerfile). Bloquant CRITICAL ; rapport SARIF dans l'onglet Security. |
 | **Build des images** | `.github/workflows/ci.yml` (`build-quiz-backend`, `build-quiz-frontend`) | PR vers `main` | Construit les deux images avec Buildx et cache GHA, sans publier. Prouve que les Dockerfile compilent. |
-| **Trivy — images** | `.github/workflows/ci.yml` (`trivy-image-quiz-*`) | PR vers `main` | Scanne les images construites. Rapport JSON en artefact, puis étape bloquante : une vulnérabilité **CRITICAL** fait échouer le job (`exit-code: 1`, pas de `continue-on-error`). |
+| **Trivy — images** | `.github/actions/build-scan` (via `ci.yml`, `build-quiz-*`) | PR vers `main` | Scanne les images construites. Étape bloquante : une vulnérabilité **CRITICAL** fait échouer le job (`exit-code: 1`, pas de `continue-on-error`). |
 | **Protection de `main`** | réglage GitHub | — | Pull request obligatoire avec approbation, checks requis, force-push et suppression interdits. Une CI rouge empêche la fusion. |
 | **Hook co-auteurs** | `.githooks/prepare-commit-msg` | commit local | Ajoute les trailers `Co-authored-by` à chaque commit. |
 | **CD Azure** | `.github/workflows/cd.yml` | `push` vers `main` uniquement | Rebuild, scan Trivy CRITICAL avant tout push, publication dans l'ACR avec le SHA du commit, mise à jour du backend puis du frontend (nouvelle révision), contrôle des révisions et de `/health`. |

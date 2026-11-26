@@ -1,8 +1,8 @@
 name: CI images
 
-# J6-A : construit les deux images puis lance Trivy sur les IMAGES construites
-# (trivy.yml scanne le système de fichiers, hadolint.yml lint les Dockerfiles :
-# les trois restent, ils ne se remplacent pas).
+# Pull request : construit chaque image puis la scanne avec Trivy
+# (action partagée .github/actions/build-scan). CRITICAL bloque.
+# trivy.yml scanne le système de fichiers, hadolint.yml lint les Dockerfiles.
 # Aucun secret, aucun déploiement : la CD (cd.yml) ne tourne qu'après fusion.
 
 on:
@@ -34,71 +34,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # Pas de push : l'image est exportée en archive pour le job de scan.
-      - name: Build ${{ matrix.image }}
-        uses: docker/build-push-action@v6
+      - name: Build and scan ${{ matrix.image }}
+        uses: ./.github/actions/build-scan
         with:
+          image: ${{ matrix.image }}:ci
           context: ${{ matrix.context }}
-          file: ${{ matrix.dockerfile }}
-          push: false
-          tags: ${{ matrix.image }}:ci
-          outputs: type=docker,dest=${{ runner.temp }}/${{ matrix.image }}.tar
-          cache-from: type=gha,scope=${{ matrix.image }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
-
-      - name: Upload image archive
-        uses: actions/upload-artifact@v4
-        with:
-          name: image-${{ matrix.image }}
-          path: ${{ runner.temp }}/${{ matrix.image }}.tar
-          retention-days: 1
-
-  trivy-image:
-    name: trivy-image-${{ matrix.image }}
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        image: [quiz-backend, quiz-frontend]
-    steps:
-      - name: Download image archive
-        uses: actions/download-artifact@v4
-        with:
-          name: image-${{ matrix.image }}
-          path: ${{ runner.temp }}
-
-      # Rapport complet (CRITICAL et HIGH), non bloquant : conservé en artefact.
-      - name: Trivy report ${{ matrix.image }}
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          input: ${{ runner.temp }}/${{ matrix.image }}.tar
-          scanners: vuln
-          format: json
-          output: trivy-${{ matrix.image }}.json
-          severity: CRITICAL,HIGH
-          exit-code: 0
-
-      - name: Upload Trivy report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: trivy-report-${{ matrix.image }}
-          path: trivy-${{ matrix.image }}.json
-
-      # Contrôle bloquant : une seule vulnérabilité CRITICAL fait échouer le job
-      # (docs/04). Pas de continue-on-error. ignore-unfixed reste à false : un
-      # CRITICAL sans correctif publié doit aussi bloquer et être arbitré à la main,
-      # pas être masqué.
-      - name: Fail on CRITICAL ${{ matrix.image }}
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          input: ${{ runner.temp }}/${{ matrix.image }}.tar
-          scanners: vuln
-          format: table
-          severity: CRITICAL
-          ignore-unfixed: false
-          exit-code: 1
+          dockerfile: ${{ matrix.dockerfile }}
+          cache-scope: ${{ matrix.image }}

@@ -1,11 +1,10 @@
 # Configuration rendue par envsubst au démarrage du conteneur
 # (/etc/nginx/templates/*.template -> /etc/nginx/conf.d/*.conf).
-# BACKEND_HOST et BACKEND_PORT sont fournis par l'environnement (Compose, Azure en J4).
+# BACKEND_HOST et BACKEND_PORT sont fournis par l'environnement (Compose, Azure Container Apps).
 # Le nom de l'upstream est résolu au démarrage : le backend doit être joignable en DNS
 # à ce moment-là, sinon Nginx refuse de démarrer.
 
-upstream backend {
-    least_conn;
+upstream app_backend {
     server ${BACKEND_HOST}:${BACKEND_PORT};
 }
 
@@ -27,9 +26,9 @@ server {
         try_files /gestion-quiz.html =404;
     }
 
-    # API proxy to backend with load balancing
+    # API proxy to backend
     location /api/ {
-        proxy_pass ${BACKEND_SCHEME}://backend;
+        proxy_pass ${BACKEND_SCHEME}://app_backend;
         proxy_ssl_server_name on;
         proxy_http_version 1.1;
         proxy_set_header Host ${BACKEND_HOST};
@@ -43,7 +42,7 @@ server {
 
     # Health check endpoint
     location /health {
-        proxy_pass ${BACKEND_SCHEME}://backend;
+        proxy_pass ${BACKEND_SCHEME}://app_backend;
         proxy_ssl_server_name on;
         proxy_http_version 1.1;
         proxy_set_header Host ${BACKEND_HOST};

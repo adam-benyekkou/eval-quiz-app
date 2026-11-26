@@ -23,4 +23,8 @@ ENV BACKEND_HOST=backend \
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Défense en profondeur : l'image non-root tourne déjà en uid 101 (nginx),
+# mais l'instruction explicite satisfait les contrôles statiques (Trivy DS-0002).
+USER 101:101
+
 EXPOSE 8080

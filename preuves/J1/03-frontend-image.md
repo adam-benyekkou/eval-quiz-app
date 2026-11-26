@@ -73,6 +73,34 @@ $ docker run --rm -i hadolint/hadolint < Dockerfile
 # exit 0
 ```
 
+## G. Trivy — `DS-0002` corrigé
+
+Premier passage CI (workflow `trivy.yml`, `scanners: vuln,secret,misconfig`) :
+
+```text
+│ Dockerfile │ dockerfile │ - │ - │ 1 │
+DS-0002 (HIGH): Specify at least 1 USER command in Dockerfile with non-root user as argument
+```
+
+L'image `nginxinc/nginx-unprivileged` tourne déjà en uid 101, mais le contrôle statique
+exige l'instruction. Ajout de `USER 101:101` en fin d'étape finale.
+
+```bash
+$ docker run --rm -v "$PWD":/src aquasec/trivy:latest config --severity HIGH,CRITICAL --quiet /src
+│ Dockerfile         │ dockerfile │ 0 │
+│ backend/Dockerfile │ dockerfile │ 0 │
+# exit 0
+
+$ docker run -d -e BACKEND_HOST=127.0.0.1 -e BACKEND_PORT=3007 quiz-frontend:local
+$ curl -o /dev/null -w '%{http_code}\n' localhost:8088/ localhost:8088/gestion-quiz
+200
+200
+$ docker exec <conteneur> id
+uid=101(nginx) gid=101(nginx) groups=101(nginx)
+```
+
+Le conteneur démarre et sert les pages avec le `USER` explicite : aucune régression.
+
 ## F. Changement de fichier
 
 `nginx/nginx.conf` → `nginx/default.conf.template` (`git mv`), seules différences :

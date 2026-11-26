@@ -75,8 +75,9 @@ docker run --rm -v "$PWD":/src -w /src aquasec/trivy:latest \
 
 - **Frontend — paquets Alpine** : `brotli-libs`, `curl`/`libcurl`, `libexpat`,
   `libxml2`, `libxslt`, `musl`/`musl-utils`, `zlib`. Tous proviennent de l'image
-  `nginx-unprivileged`. `nginx -V` confirme qu'aucun module `brotli` ni `xslt` n'est
-  compilé : ces bibliothèques sont présentes dans l'image mais pas chargées par Nginx.
+  `nginx-unprivileged`. `nginx -V` et `/etc/nginx/nginx.conf` confirment qu'aucun module `brotli` n'est compilé et
+  qu'aucune directive `load_module` ne charge `xslt`/`geoip`/`njs` : ces bibliothèques sont
+  présentes sur disque mais inactives.
 
 ### 2.2 CRITICAL et HIGH — pertinence à l'exécution
 
@@ -110,9 +111,9 @@ docker run --rm -v "$PWD":/src -w /src aquasec/trivy:latest \
 | --- | --- | --- | --- |
 | `brotli-libs` | CVE-2026-111497 | CRITICAL | Écriture hors bornes dans le **décodeur** Brotli. Nginx ne décode pas de flux Brotli entrants (module non compilé, `nginx -V`), il sert des fichiers statiques → non atteignable, mais **aucun CRITICAL n'est toléré** : corrigé par mise à jour Alpine. |
 | `curl`, `libcurl` | CVE-2026-92392 | HIGH | UAF HTTP/2 à l'upload ; Nginx n'utilise pas libcurl, le binaire `curl` n'est qu'un outil de diagnostic. Non atteignable par HTTP. |
-| `libexpat` | CVE-2026-113351, -115506, -117610, -118370 | HIGH | DoS XML ; aucun parsing XML (module XSLT absent). Non atteignable. |
-| `libxml2` | CVE-2026-86144 | HIGH | SSRF/DoS XML ; module XSLT absent, non atteignable. |
-| `libxslt` | CVE-2026-125350, -87636, -9947 | HIGH | UAF/type confusion XSLT ; module non compilé, non atteignable. |
+| `libexpat` | CVE-2026-113351, -115506, -117610, -118370 | HIGH | DoS XML ; aucun parsing XML, module XSLT présent mais non chargé. Non atteignable. |
+| `libxml2` | CVE-2026-86144 | HIGH | SSRF/DoS XML ; module XSLT présent mais non chargé, non atteignable. |
+| `libxslt` | CVE-2026-125350, -87636, -9947 | HIGH | UAF/type confusion XSLT ; module présent mais non chargé, non atteignable. |
 | `musl`, `musl-utils` | CVE-2026-107891 | HIGH | `regcomp` : Nginx compile des regex de configuration fixes, pas d'entrée utilisateur → non atteignable, corrigé car libc. |
 | `zlib` | CVE-2026-85091 | HIGH | `gz_vacate()` : Nginx compresse (`gzip`) mais ne décompresse pas de contenu client → non atteignable, corrigé. |
 
@@ -135,6 +136,71 @@ clé Stripe factices dans un répertoire temporaire : les deux sont détectés, 
 n'est pas silencieusement inopérant. Les secrets réels restent hors du dépôt (`.env`
 ignoré, vérifié en J1).
 
-## 3. Durcissement appliqué
+## 3. Durcissement appliqué (`feature/j2-hardening`)
 
-_(section complétée dans la branche `feature/j2-hardening`)_
+### 3.1 Corrections retenues
+
+| # | Correction | Justification | Effet mesuré |
+| --- | --- | --- | --- |
+| 1 | Backend : `node:20-alpine` → `node:24-alpine` | Node 20 est en fin de vie (avril 2026) ; Node 24 est LTS. Comparaison Trivy des bases : `node:20-alpine` 1 CRITICAL + 28 HIGH, `node:22-alpine` 10 HIGH, `node:24-alpine` 6 HIGH. | Les CVE de npm embarqué restent séparées (voir #3). Aucun changement de code applicatif ; parcours J1 rejoué. |
+| 2 | `apk upgrade --no-cache` dans les deux images finales | Les images de base embarquent des paquets Alpine plus anciens que le dépôt : les versions corrigées existent (`Fixed Version` renseignée). | Supprime les CVE Alpine corrigeables (OpenSSL, musl, zlib côté backend ; brotli, curl, expat, libxml2, libxslt côté frontend). |
+| 3 | Retrait de `npm` et `corepack` de l'image backend d'exécution | Ce sont des outils d'installation, jamais appelés par `node server.js` ; ils embarquent `tar`, `pacote`, `sigstore`, `glob`, `minimatch`, `brace-expansion`, `cross-spawn`, `ip-address`. | Supprime les 38 findings npm (dont le CRITICAL `tar`). `node`, le shell et `wget` restent disponibles pour le diagnostic. |
+| 4 | `HEALTHCHECK` ajouté aux deux Dockerfiles | Corrige `DS-0026` (LOW) et rend l'état des conteneurs lisible (`healthy`). | `trivy config` : 0 finding. |
+| 5 | Compose : `read_only`, `tmpfs`, `cap_drop: [ALL]`, `no-new-privileges` sur `backend` et `frontend` | Le backend n'écrit aucun fichier ; Nginx n'écrit que pid/caches/configuration rendue. Réduit l'impact d'une compromission (pas d'écriture dans l'image, pas de capabilities). | Les trois services démarrent `healthy` ; voir preuve `02-hardening.md` §F. |
+
+`npm ci --omit=dev`, l'utilisateur non-root et l'absence d'outils de build dans l'image
+finale étaient déjà en place depuis J1 ; ils ont été revérifiés, pas refaits.
+
+### 3.2 Candidats écartés
+
+- **Distroless / Chainguard** : écarté à nouveau. L'image `node:24-alpine` et
+  `nginx-unprivileged` conservent un shell pour `docker exec -it <ctn> sh`, utilisé en
+  démonstration pour diagnostiquer un incident. C'est un compromis explicite : surface
+  d'attaque un peu plus large (shell, apk, outils réseau) contre accès direct de
+  diagnostic. Les CVE Alpine corrigeables sont supprimées par `apk upgrade`, ce qui rend
+  le gain résiduel de distroless faible pour ce projet.
+- **Mise à jour forcée des dépendances npm applicatives** : Trivy ne trouve **aucune**
+  vulnérabilité CRITICAL/HIGH dans `/app/node_modules` ; seules deux MEDIUM transitives
+  subsistent (voir §4). Les corriger exige `glob` 14 et `minimatch` 11, deux montées majeures dans
+  la chaîne `resend → @react-email/render → js-beautify` : risque de casser le rendu des
+  emails sans test automatisé. Non appliqué, documenté en résiduel plutôt qu'ignoré.
+- **Suppression des modules Nginx inutilisés** (`xslt`, `geoip`, `njs`, `image-filter`) :
+  aucun finding CRITICAL/HIGH après `apk upgrade` ; hors périmètre du durcissement CVE.
+- **`.trivyignore`** : non utilisé. Aucune CVE n'est masquée ; voir §4.
+
+### 3.3 Résultats après durcissement (`:fixed`)
+
+| Image | Base | CRITICAL | HIGH | MEDIUM | Total |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `quiz-backend:fixed` | `node:24-alpine` (Node 24.22.3) | 0 | 0 | 2 | 2 |
+| `quiz-frontend:fixed` | `nginx-unprivileged:alpine` (nginx 1.31.7) | 0 | 0 | 0 | 0 |
+
+Sorties : `preuves/J2/trivy-apres-backend.{txt,json}` et
+`preuves/J2/trivy-apres-frontend.{txt,json}`. Évolution : backend 66 → 2 findings,
+frontend 27 → 0.
+
+`trivy config` après correction (`preuves/J2/trivy-config-apres.txt`) : 0 finding sur les
+deux Dockerfiles. Scan de secrets inchangé : aucun secret.
+
+Taille des images : backend 225 → 278 Mo, frontend 92,4 → 112 Mo. La croissance vient de
+la couche `apk upgrade` (les anciens fichiers restent dans la couche de base) et de
+`node:24-alpine` ; elle est acceptée en échange de la suppression des CVE.
+
+## 4. Vulnérabilités résiduelles
+
+| CVE | Sévérité | Paquet | Version installée → corrigée | Raison de la non-correction | Mitigation |
+| --- | --- | --- | --- | --- | --- |
+| CVE-2026-118773 | MEDIUM | `glob` (transitif) | 10.5.0 → 14.0.2 | Montée majeure dans `resend → @react-email/render → js-beautify` ; aucun test automatisé du rendu email, risque de régression supérieur au risque DoS. | Motifs glob internes à la bibliothèque, non contrôlés par l'utilisateur HTTP ; dépendance d'un chemin d'envoi d'email déjà en échec silencieux sans clé Resend valide. À réévaluer à la prochaine montée de `resend`/`@react-email`. |
+| CVE-2026-118764 | MEDIUM | `minimatch` (transitif) | 9.0.9 → 11.0.1 | Même chaîne, même contrainte de version majeure. | Même mitigation : aucun motif fourni par l'utilisateur, DoS non atteignable via les routes HTTP. |
+
+Aucun CRITICAL ni HIGH résiduel : la CI de J6-A (échec sur CRITICAL/HIGH) passera sur
+ces images. Aucune entrée `.trivyignore` : les deux MEDIUM restent visibles dans les
+scans et sont assumées explicitement, pas masquées.
+
+## 5. Parcours J1 rejoué sur les images corrigées
+
+Détail et sorties : `preuves/J2/02-hardening.md` §F. Résumé : `/`, `/gestion-quiz`,
+`/health` = 200 ; inscription 201 ; résultat 201 (`quizResultId` créé) ; login admin et
+liste des résultats OK ; `docker compose down` puis `up` conserve le volume `pgdata` et le
+compte de résultats. Les conteneurs tournent en lecture seule, non-root, sans capabilities.
+

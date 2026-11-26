@@ -2,20 +2,20 @@
 
 **Branche(s)** : feature/j1-analyse, feature/j1-backend-image, feature/j1-frontend-image, feature/j1-compose (une PR par branche, dans cet ordre)
 **Dépend de** : — ; doit être validé avant J3
-**Assigné** : _à renseigner_
-**Statut** : à faire
+**Assigné** : IA:Warrior (assisté)
+**Statut** : en cours (section 1 faite)
 **Livrables** : `backend/Dockerfile`, `Dockerfile` (frontend), `docker-compose.yml`, `.dockerignore`, `backend/.dockerignore`, `.env.example` à jour, `docs/architecture-locale.md` + schéma, `preuves/J1/`
 
 ## Section 1 — feature/j1-analyse (docs/08 §8)
 
-- [ ] Lister les composants, rôles et dépendances : frontend Vite, nginx, backend Express, PostgreSQL, Resend
-- [ ] Ports : 5173 (dev Vite), 3007 (backend), 5432 (PG), 80 (nginx conteneur) ; décider le port hôte (ex. 8087)
-- [ ] Variables : séparer publiques (POSTGRES_DB, FROM_EMAIL, PORT) et secrets (POSTGRES_PASSWORD, DATABASE_URL, RESEND_API_KEY, ADMIN_PASSWORD, JWT_SECRET)
-- [ ] Lire `backend/server.js` (routes, corps, codes HTTP, `/health`, usage de RESEND_API_KEY)
-- [ ] Comprendre `database/nginx/nginx.conf` (doublon de `nginx/nginx.conf` ?) et décider lequel est utilisé
-- [ ] Vérifier hors Docker que le backend démarre sans RESEND_API_KEY et sans PostgreSQL : `cd backend && npm ci && PORT=3007 node server.js` puis `curl -i localhost:3007/health` ; noter le résultat (conditionne J4)
-- [ ] Rédiger `docs/architecture-locale.md` avec un schéma réalisé par le groupe (Mermaid ou image)
-- [ ] Rédiger la justification des images de base et du volume nommé, en incluant le choix d'alpine plutôt que distroless/Chainguard (garder le shell pour le débogage, compromis assumé plutôt que surface d'attaque minimale)
+- [x] Lister les composants, rôles et dépendances : frontend Vite, nginx, backend Express, PostgreSQL, Resend
+- [x] Ports : 5173 (dev Vite), 3007 (backend), 5432 (PG), 80 (nginx conteneur) ; décider le port hôte (ex. 8087)
+- [x] Variables : séparer publiques (POSTGRES_DB, FROM_EMAIL, PORT) et secrets (POSTGRES_PASSWORD, DATABASE_URL, RESEND_API_KEY, ADMIN_PASSWORD, JWT_SECRET)
+- [x] Lire `backend/server.js` (routes, corps, codes HTTP, `/health`, usage de RESEND_API_KEY)
+- [x] Comprendre `database/nginx/nginx.conf` (doublon de `nginx/nginx.conf` ?) et décider lequel est utilisé
+- [x] Vérifier hors Docker que le backend démarre sans RESEND_API_KEY et sans PostgreSQL : `cd backend && npm ci && PORT=3007 node server.js` puis `curl -i localhost:3007/health` ; noter le résultat (conditionne J4)
+- [x] Rédiger `docs/architecture-locale.md` avec un schéma réalisé par le groupe (Mermaid ou image)
+- [x] Rédiger la justification des images de base et du volume nommé, en incluant le choix d'alpine plutôt que distroless/Chainguard (garder le shell pour le débogage, compromis assumé plutôt que surface d'attaque minimale)
 
 ## Section 2 — feature/j1-backend-image
 

@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:?copier .env.example en .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copier .env.example en .env}
+      POSTGRES_DB: ${POSTGRES_DB:?copier .env.example en .env}
     volumes:
       # Données persistantes : survivent à `docker compose down`, pas à `down -v`
       - pgdata:/var/lib/postgresql/data
@@ -21,14 +21,14 @@ services:
   backend:
     build: ./backend
     image: quiz-backend:local
+    # Écoute sur 3007 par défaut (backend/server.js) : pas de PORT à fournir.
     environment:
-      PORT: 3007
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      FROM_EMAIL: ${FROM_EMAIL}
-      ADMIN_USERNAME: ${ADMIN_USERNAME}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY:?copier .env.example en .env}
+      FROM_EMAIL: ${FROM_EMAIL:?copier .env.example en .env}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?copier .env.example en .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?copier .env.example en .env}
+      JWT_SECRET: ${JWT_SECRET:?copier .env.example en .env}
     depends_on:
       db:
         condition: service_healthy
@@ -43,16 +43,16 @@ services:
     restart: unless-stopped
 
   frontend:
+    # Frontend = Dockerfile à la racine (Vite + nginx). Il cible déjà
+    # backend:3007 par défaut (ENV du Dockerfile) : rien à configurer ici.
     build: .
     image: quiz-frontend:local
     ports:
       # Seul port publié : 8087 sur l'hôte -> 8080 (nginx non-root)
       - "8087:8080"
-    environment:
-      BACKEND_HOST: backend
-      BACKEND_PORT: 3007
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     # Nginx non-root n'écrit que dans ces trois répertoires (pid, caches,
     # configuration rendue par envsubst) : tout le reste est en lecture seule.
     read_only: true

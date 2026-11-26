@@ -1,0 +1,11 @@
+#!/bin/sh
+# Appends the project co-author trailer unless it is already present.
+COMMIT_MSG_FILE="$1"
+TRAILERS="Co-authored-by: ufranchinard-devops <ufranchinard.devops@gmail.com>
+Co-authored-by: adam-benyekkou <cavy.protocol.dev@proton.me>"
+
+printf '%s\n' "$TRAILERS" | while IFS= read -r TRAILER; do
+  if ! grep -qF "$TRAILER" "$COMMIT_MSG_FILE"; then
+    printf '\n%s\n' "$TRAILER" >> "$COMMIT_MSG_FILE"
+  fi
+done

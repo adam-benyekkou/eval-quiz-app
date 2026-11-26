@@ -32,6 +32,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Le processus n'écrit aucun fichier : racine en lecture seule.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   frontend:
@@ -45,6 +53,18 @@ services:
       BACKEND_PORT: 3007
     depends_on:
       - backend
+    # Nginx non-root n'écrit que dans ces trois répertoires (pid, caches,
+    # configuration rendue par envsubst) : tout le reste est en lecture seule.
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      # propriétaire = uid/gid nginx (101), sinon envsubst ne peut pas écrire
+      - /etc/nginx/conf.d:uid=101,gid=101,mode=0755
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
 volumes:

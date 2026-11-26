@@ -1,5 +1,5 @@
 # Étape 1 — build statique Vite
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
@@ -13,6 +13,12 @@ RUN npm run build
 
 # Étape 2 — serveur Nginx non-root
 FROM nginxinc/nginx-unprivileged:alpine
+
+# Correctifs publiés dans Alpine après la sortie de l'image de base
+# (brotli, curl, libexpat, libxml2, libxslt, musl, zlib) : l'utilisateur de
+# l'image est non-root, on repasse root le temps de la mise à jour.
+USER 0:0
+RUN apk upgrade --no-cache
 
 # Modèle rendu par envsubst au démarrage (docker-entrypoint.d/20-envsubst-on-templates.sh)
 COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
@@ -28,3 +34,6 @@ COPY --from=build /app/dist /usr/share/nginx/html
 USER 101:101
 
 EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD ["wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]

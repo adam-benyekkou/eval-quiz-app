@@ -1,24 +1,24 @@
 # DOC — Documentation, preuves, soutenance
 
-**Branche(s)** : feature/docs-ia-readme, feature/docs-architecture, feature/docs-soutenance (une PR par branche, dans cet ordre)
+**Branche(s)** : feature/docs (une seule branche, une seule PR pour les trois sections)
 **Dépend de** : au fil des jalons ; finalisation après J6
 **Assigné** : _à renseigner_
 **Statut** : à faire
 **Livrables** : sections du README (« Usage de l'IA », prérequis, lancement, déploiement, nettoyage), schémas d'architecture locale et cloud, support de soutenance (6 diapositives max), vérification finale avant remise
 
-## Section 1 — feature/docs-ia-readme
+## Section 1 — README et usage de l'IA
 
 - [ ] Section README « Usage de l'IA » (docs/09) : outils, types de tâches assistées, comment chaque proposition a été vérifiée ; aucune clé, chaîne ni donnée personnelle
 - [ ] README : prérequis, lancement local, déploiement cloud, nettoyage, liens vers `docs/` et `preuves/`
 - [ ] `.env.example` sans secret, et `git ls-files | grep -E '(^|/)\.env$'` ne renvoie rien
 
-## Section 2 — feature/docs-architecture
+## Section 2 — Schémas d'architecture
 
 - [ ] Schéma d'architecture locale (J1) réalisé par le groupe
 - [ ] Schéma cloud : GitHub Actions, ACR, Container Apps frontend externe / backend interne, Neon, flux de secrets
 - [ ] Chaque schéma accompagné de quelques lignes d'explication
 
-## Section 3 — feature/docs-soutenance (docs/06 : 15 min, 6 diapositives max)
+## Section 3 — Soutenance (docs/06 : 15 min, 6 diapositives max)
 
 - [ ] D1 : contexte et mission
 - [ ] D2 : conteneurisation locale (Compose, volume, persistance)
